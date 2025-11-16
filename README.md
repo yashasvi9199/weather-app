@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# Weather App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive weather application built with React that provides real-time weather information for cities worldwide. Features beautiful animations, geolocation support, and intelligent city suggestions.
 
-## Available Scripts
+## 🌟 Features
 
-In the project directory, you can run:
+- **Real-time Weather Data**: Get current weather conditions for any city worldwide
+- **Smart City Search**: Auto-complete suggestions powered by API Ninjas
+- **Geolocation Support**: Automatic weather detection based on your current location
+- **Beautiful Animations**: Dynamic weather icons with smooth animations
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- **Secure API Integration**: Protected API keys using Vercel serverless functions
 
-### `npm start`
+## 🛠️ Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend
+- **React** - UI framework
+- **CSS3** - Modern styling with animations and gradients
+- **JavaScript ES6+** - Application logic
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Backend & APIs
+- **Vercel Serverless Functions** - Secure API proxy
+- **OpenWeatherMap API** - Weather data
+- **API Ninjas Cities API** - City suggestions
+- **Browser Geolocation API** - Location services
 
-### `npm test`
+## 🚀 Live Demo
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Visit the live application: [https://yashasvi9199.github.io/weather-app](https://yashasvi9199.github.io/weather-app)
 
-### `npm run build`
+## 📦 Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Local Development
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yashasvi9199/weather-app.git
+   cd weather-app
+   ```
 
-### `npm run eject`
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. **Start the development server** 
+   ```bash
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4. **Open the application in your browser**
+   Visit [http://localhost:3000](http://localhost:3000)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📝 License
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Setup Guide for Forked Repositories
 
-## Learn More
+## City Suggestions API Setup
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+This app uses a restricted Vercel API. To enable city suggestions in your forked version:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **Get API Ninjas Key**:
+   - Sign up at [API Ninjas](https://api-ninjas.com/)
+   - Get your free API key
 
-### Code Splitting
+2. **Deploy Your Own Vercel API**:
+   - Fork and deploy the API from: [weather-app-api](https://github.com/your-repo/weather-app-api)
+   - Set `API_NINJAS_KEY` environment variable in Vercel
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+3. **Update API URL in Weather.jsx**:
+   ```javascript
+   // Replace with your Vercel API URL
+   const response = await fetch(
+     `https://your-vercel-app.vercel.app/api/cities?name=${encodeURIComponent(query)}`
+   );
