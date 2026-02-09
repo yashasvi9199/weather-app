@@ -8,21 +8,21 @@ const api = {
 
 // Weather icons and animations mapping
 const weatherConfig = {
-  Clear: { icon: "☀️", animation: "sunny" },
-  Clouds: { icon: "☁️", animation: "cloudy" },
-  Rain: { icon: "🌧️", animation: "rainy" },
-  Drizzle: { icon: "🌦️", animation: "rainy" },
-  Thunderstorm: { icon: "⛈️", animation: "thunderstorm" },
-  Snow: { icon: "❄️", animation: "snowy" },
-  Mist: { icon: "🌫️", animation: "misty" },
-  Smoke: { icon: "💨", animation: "misty" },
-  Haze: { icon: "🌫️", animation: "misty" },
-  Dust: { icon: "💨", animation: "windy" },
-  Fog: { icon: "🌫️", animation: "misty" },
-  Sand: { icon: "💨", animation: "windy" },
-  Ash: { icon: "🌋", animation: "misty" },
-  Squall: { icon: "💨", animation: "windy" },
-  Tornado: { icon: "🌪️", animation: "windy" }
+  Clear: { icon: "☀️", animation: "none" },
+  Clouds: { icon: "☁️", animation: "none" },
+  Rain: { icon: "🌧️", animation: "none" },
+  Drizzle: { icon: "🌦️", animation: "none" },
+  Thunderstorm: { icon: "⛈️", animation: "none" },
+  Snow: { icon: "❄️", animation: "none" },
+  Mist: { icon: "🌫️", animation: "none" },
+  Smoke: { icon: "💨", animation: "none" },
+  Haze: { icon: "🌫️", animation: "none" },
+  Dust: { icon: "💨", animation: "none" },
+  Fog: { icon: "🌫️", animation: "none" },
+  Sand: { icon: "💨", animation: "none" },
+  Ash: { icon: "🌋", animation: "none" },
+  Squall: { icon: "💨", animation: "none" },
+  Tornado: { icon: "🌪️", animation: "none" }
 }
 
 function Weather() {
@@ -34,6 +34,12 @@ function Weather() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [locationPermission, setLocationPermission] = useState(null)
   const [isRequestingLocation, setIsRequestingLocation] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark'
+  })
+
+  // Debounce search
+  const debounceTimer = useRef(null)
 
   const searchRef = useRef(null)
 
@@ -64,11 +70,20 @@ function Weather() {
     }
   }
 
-  // Handle search input changes
+  // Handle search input changes with debouncing
   const handleSearchChange = (e) => {
     const value = e.target.value
     setSearch(value)
-    fetchCities(value)
+
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // Set new timer for debouncing
+    debounceTimer.current = setTimeout(() => {
+      fetchCities(value)
+    }, 500) // 500ms delay
   }
 
   // Search weather by city name
@@ -81,7 +96,7 @@ function Weather() {
     setLoading(true)
     setError("")
     setShowSuggestions(false)
-    
+
     fetch(`${api.base}weather?q=${cityName}&units=metric&APPID=${api.key}`)
       .then((res) => {
         if (!res.ok) {
@@ -110,7 +125,7 @@ function Weather() {
 
     setIsRequestingLocation(true)
     setError("")
-    
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords
@@ -120,14 +135,18 @@ function Weather() {
       },
       (error) => {
         console.error("Geolocation error:", error)
-        setError("Unable to retrieve your location. Please allow location access or search for a city.")
+        if (error.code === 1) { // PERMISSION_DENIED
+          setError("Location access denied. Please enable it in browser settings and click again.")
+        } else {
+          setError("Unable to retrieve your location. Please try again.")
+        }
         setLocationPermission('denied')
         setIsRequestingLocation(false)
       },
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 60000
+        maximumAge: 0 // Fetch fresh location
       }
     )
   }
@@ -136,7 +155,7 @@ function Weather() {
   const fetchWeatherByCoords = (lat, lon) => {
     setLoading(true)
     setError("")
-    
+
     fetch(`${api.base}weather?lat=${lat}&lon=${lon}&units=metric&APPID=${api.key}`)
       .then((res) => {
         if (!res.ok) {
@@ -165,14 +184,32 @@ function Weather() {
 
   // Handle suggestion click
   const handleSuggestionClick = (city) => {
-    setSearch(city.name)
+    const cityName = `${city.name}, ${city.country}`
+    setSearch(cityName)
     setShowSuggestions(false)
+    setSuggestions([]) // Clear suggestions to prevent loop
     searchStart(city.name)
   }
 
+  // Toggle theme
+  const toggleTheme = () => {
+    const newMode = !isDarkMode
+    setIsDarkMode(newMode)
+    localStorage.setItem('theme', newMode ? 'dark' : 'light')
+  }
+
+  // Effect to apply theme class
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-theme')
+    } else {
+      document.body.classList.remove('dark-theme')
+    }
+  }, [isDarkMode])
+
   // Get weather configuration
   const getWeatherConfig = (condition) => {
-    return weatherConfig[condition] || { icon: "🌈", animation: "sunny" }
+    return weatherConfig[condition] || { icon: "🌈", animation: "none" }
   }
 
   // Format date
@@ -201,30 +238,40 @@ function Weather() {
   }, [])
 
   return (
-    <div className="weather-app">
+    <div className={`weather-app ${isDarkMode ? 'dark-mode' : ''}`}>
+      {/* Theme Toggle */}
+      <div className="theme-toggle-container">
+        <button className="theme-toggle-btn" onClick={toggleTheme}>
+          {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+        </button>
+      </div>
       {/* Header */}
       <div className="weather-header">
         <h1 className="weather-title">Weather Forecast</h1>
         <p className="weather-subtitle">Get real-time weather information for any city</p>
       </div>
-      
+
       {/* Search Section */}
       <div className="search-container" ref={searchRef}>
         <div className="search-box">
-          <input 
-            type="text" 
+          <input
+            type="text"
             className="search-input"
-            placeholder="Enter city name..." 
+            placeholder="Enter city name..."
             onChange={handleSearchChange}
             onKeyPress={handleKeyPress}
-            onFocus={() => fetchCities(search)}
+            onFocus={() => {
+              if (search.length >= 2 && suggestions.length === 0) {
+                fetchCities(search)
+              }
+            }}
             value={search}
           />
           <button className="search-button" onClick={() => searchStart()}>
             {loading ? "Searching..." : "Get Weather"}
           </button>
-          <button 
-            className="location-button" 
+          <button
+            className="location-button"
             onClick={getCurrentLocation}
             title="Use my current location"
             disabled={isRequestingLocation}
@@ -256,13 +303,13 @@ function Weather() {
             Get weather for your current location for a personalized experience!
           </p>
           <div className="permission-buttons">
-            <button 
+            <button
               className="permission-btn permission-allow"
               onClick={getCurrentLocation}
             >
               Allow Location Access
             </button>
-            <button 
+            <button
               className="permission-btn permission-deny"
               onClick={() => setLocationPermission('denied')}
             >
@@ -294,15 +341,15 @@ function Weather() {
           <div className='location'>
             <div className="location-name">
               <span className="location-icon">📍</span>
-              {weather.name}, {weather.sys.country}
+              <strong>{weather.name}</strong>, {weather.sys.country}
             </div>
-            <div className="location-date">{formatDate()}</div>
+            <div className="location-date"><b>{formatDate()}</b></div>
           </div>
 
           {/* Temperature */}
           <div className="temperature">
             <div className="temp-value">
-              {Math.round(weather.main.temp)}
+              <strong>{Math.round(weather.main.temp)}</strong>
             </div>
             <div className="temp-feels-like">
               Feels like {Math.round(weather.main.feels_like)}°C
@@ -315,7 +362,7 @@ function Weather() {
               <span className="weather-icon">
                 {getWeatherConfig(weather.weather[0].main).icon}
               </span>
-              {weather.weather[0].main}
+              <span className="highlight-text">{weather.weather[0].main}</span>
             </div>
             <div className="condition-description">
               {weather.weather[0].description}
